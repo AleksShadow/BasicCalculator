@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Aleksandr Tselikovskii">
+    <meta name="email" content="tsel0003@algonquinlive.com">
+
+    <style>
+      @font-face {
+      font-family: displayFont;
+      src: url(digital-7_mono.ttf);
+    }
+    .keypad {
+        display: grid;
+        grid-template-columns: 23% 23% 23% 23%;
+        grid-column-gap: 2%;
+        grid-row-gap: 10%;
+        background-color: lightskyblue;
+        padding: 15px 10px 20px 15px;
+        width: 400px;
+        height: 200px;
+        border: 1px solid rgb(69, 15, 92);
+    }
+    .keypad button {
+        border: none;
+        border-radius: 5px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20pt;
+        box-shadow: 0 6px 12px 0 gray, 0 6px 10px 0 gray;
+    }
+    .keypad button:hover {
+        background-color: bisque;
+        color: violet;
+    }
+    .keypad button:active {
+        background-color: bisque;
+        box-shadow: 0 5px #666;
+        transform: translateY(4px);
+        box-shadow: 0 4px 8px 0 gray, 0 3px 4px 0 gray;
+    }
+    .display {
+        display: grid;
+        grid-template-columns: 10% 85%;
+        grid-column-gap: 2%;
+        grid-row-gap: 10%;
+        background-color: lightskyblue;
+        color: rgb(69, 15, 92);;
+        padding: 5px 10px 30px 15px;
+        width: 400px;
+        height: 30px;
+        border: 1px solid rgb(69, 15, 92);
+        box-shadow: 5px -8px 15px gray inset;
+        font-family: displayFont, Arial, Helvetica, sans-serif;
+        font-size: 36pt;
+        text-align: right;
+        /* text-shadow: 4px 4px 8px rgb(69, 15, 92); */
+    }
+    .upperInfo {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-column-gap: 2%;
+        grid-row-gap: 10%;
+        background-color: rgb(69, 15, 92);
+        color: white;
+        padding: 5px 10px 5px 15px;
+        width: 400px;
+        border: 1px solid rgb(69, 15, 92);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+        text-align: left;
+    }
+    </style>
+
+    <script>
+    var number = "";
+    var result = 0;
+    var prevOperation = "";
+    var displayResult = "";
+    var minus = "";
+    
+    function inputFunction(chosenButton) { // which button is clicked
+        switch (chosenButton) {
+            case 0:
+              displayNumbers (0);
+              break;
+            case 1:
+              displayNumbers (1);
+              break;
+            case 2:
+              displayNumbers (2);
+              break;
+            case 3:
+              displayNumbers (3);
+              break;
+            case 4:
+              displayNumbers (4);
+              break;
+            case 5:
+              displayNumbers (5);
+              break;
+            case 6:
+              displayNumbers (6);
+              break;
+            case 7:
+              displayNumbers (7);
+              break;
+            case 8:
+              displayNumbers (8);
+              break;
+            case 9:
+              displayNumbers (9);
+              break;
+            case 10: // user entered "-"
+              mathOperations("-");
+              break;
+            case 11: // user entered "/"
+              mathOperations("/");
+              break;
+            case 12: // user entered "x"
+              mathOperations("*");
+              break;
+            case 13: // user entered "C"
+              mathOperations("13");
+              break;
+            case 14: // user entered "="
+              mathOperations("=");
+              break;
+            case 15: // user entered "+"
+              mathOperations("+");
+              break;
+        }
+    }
+
+    function displayNumbers (enteredNumber) {
+      if (number.length == 0 && prevOperation == "=") { // reset result after user entered "=" and
+        result = 0;                                     // now is starting to enter a new number
+        prevOperation = "";
+        document.getElementById("output").innerHTML = enteredNumber;
+        number+=enteredNumber;
+        } else if (number.length == 0) { // clear screan to enter a new (first) digit
+            document.getElementById("output").innerHTML = enteredNumber;
+            number+=enteredNumber;
+          } else if (String(number).length < 7) { // limit to entered numbers is 7 digits (maximum are 9999999 x 9999999 = 99999980000001)
+              document.getElementById("output").innerHTML+=enteredNumber;
+              number+=enteredNumber; // adding new digits to number
+            }
+    }
+
+      function mathOperations(codeOfOperation) {
+        if (codeOfOperation == "13") { // code to clear screan and memory
+          result = 0;
+          codeOfOperation = "";
+          prevOperation = "";
+          displayResult ="";
+          document.getElementById("outputExtra").innerHTML = codeOfOperation;
+          document.getElementById("output").innerHTML = result;
+        }
+          else if (prevOperation == "/" && number == "0") { //to check deviding by zero
+            document.getElementById("output").innerHTML = "<div id='output' style='color:red;''>Error</div>";
+            document.getElementById("outputExtra").innerHTML = "";
+            number = "";
+            result = 0;
+            prevOperation = "";
+            codeOfOperation = "";
+
+          } else if ((prevOperation == "=" && number == "" && codeOfOperation == "=") || (codeOfOperation == "=" && prevOperation == "")) {
+              prevOperation = codeOfOperation; // user clicking "=" more then one time
+              // result = Number(number);
+            } else if (codeOfOperation == "=") { // calculations if user entered "="
+                result = eval(result + prevOperation + "(" + minus + number + ")"); // calculations if user entered the second math operation
+                minus = "";
+                // cut output if number with decimal part more then 14 symbols (9999999 * 9999999 = 14-digit number maximum)
+                displayResult = String(result).slice(0, 14);
+                document.getElementById("output").innerHTML = displayResult;
+                document.getElementById("outputExtra").innerHTML = "";
+                prevOperation = "=";
+                number = result;
+                codeOfOperation = "";
+                } else {
+                    document.getElementById("outputExtra").innerHTML = codeOfOperation;
+                      if (prevOperation == "") {
+                        prevOperation = codeOfOperation;
+                        result = Number(number);
+                        } else if (prevOperation == "=") { // if calculation complete but user want continue calculations with the current result
+                            prevOperation = codeOfOperation;
+                            
+                          } else if (prevOperation != "" && number == "" && codeOfOperation == "-") { // user clicking "-" to change number to negative/positive
+                              if (prevOperation == "-") {
+                                result = 0 - result;
+                                codeOfOperation = ""
+                              } else {
+                                // number = Number(0 - number);
+                                minus = "-";
+                              }
+                              displayResult = String(result).slice(0, 14);
+                              document.getElementById("output").innerHTML = displayResult;
+                              document.getElementById("outputExtra").innerHTML = codeOfOperation;
+                              } else {
+                                result = eval(result + prevOperation + "(" + minus + number + ")"); // calculations if user entered the second math operation
+                                minus = "";
+                                prevOperation = codeOfOperation;
+                                number = result;
+                                displayResult = String(result).slice(0, 14);
+                                document.getElementById("output").innerHTML = displayResult;
+                              }
+                        }
+        number = "";
+      }
+      
+    </script>
+
+    <title>Very Simple Calculator</title>
+
+</head>
+<body>
+    <div class="calculator">
+        <div class="upperInfo">
+        Aleks Simple Calculator v.0.1 | 2021
+        </div>
+        <div class="display">
+            <div id="outputExtra"></div>
+            <div id="output">0</div>
+        </div>
+    
+        <div class="keypad">
+            <button onclick="inputFunction(7)">7</button>
+            <button onclick="inputFunction(8)">8</button>
+            <button onclick="inputFunction(9)">9</button>
+            <button onclick="inputFunction(10)">-</button>
+            <button onclick="inputFunction(4)">4</button>
+            <button onclick="inputFunction(5)">5</button>
+            <button onclick="inputFunction(6)">6</button>
+            <button onclick="inputFunction(11)">/</button>
+            <button onclick="inputFunction(1)">1</button>
+            <button onclick="inputFunction(2)">2</button>
+            <button onclick="inputFunction(3)">3</button>
+            <button onclick="inputFunction(12)">X</button>
+            <button onclick="inputFunction(0)">0</button>
+            <button onclick="inputFunction(13)">C</button>
+            <button onclick="inputFunction(14)">=</button>
+            <button onclick="inputFunction(15)">+</button>
+        </div>
+    
+    </div>
+</body>
+</html>
+
